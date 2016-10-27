@@ -20,4 +20,55 @@
         android:textSize="@dimen/abc_action_bar_icon_vertical_padding_material"
         android:textStyle="bold"
         android:textColor="@android:color/holo_orange_light" />
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New CheckBox"
+        android:id="@+id/answer1"
+        android:onClick="selectItem"
+        android:layout_below="@+id/textView"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="134dp"
+        android:checked="false" />
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New CheckBox"
+        android:id="@+id/answer2"
+        android:onClick="selectItem"
+        android:layout_below="@+id/answer1"
+        android:layout_centerHorizontal="true"
+        android:checked="false" />
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New CheckBox"
+        android:id="@+id/answer3"
+        android:onClick="selectItem"
+        android:layout_below="@+id/answer2"
+        android:layout_centerHorizontal="true"
+        android:checked="false" />
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New CheckBox"
+        android:id="@+id/answer4"
+        android:onClick="selectItem"
+        android:layout_below="@+id/answer3"
+        android:layout_centerHorizontal="true"
+        android:checked="false" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="NEXT"
+        android:id="@+id/button"
+        android:onClick="nextClickAction"
+        android:layout_below="@+id/answer4"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="41dp" />
 </RelativeLayout>
