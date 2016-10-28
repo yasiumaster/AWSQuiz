@@ -13,12 +13,18 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 public class QuizOpenHelper extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 1;
-    private static final String QUESTION_TABLE_NAME = "questions";
+    private static final String QUESTIONS_TABLE_NAME = "questions";
+    private static final String ANSWERS_TABLE_NAME = "answers";
+    private static final String CORRECT_ANSWERS_TABLE_NAME = "correct_answers";
     private static final String DATABASE_PATH = "/data/data/dskoczny.awsquiz/databases/";
     private static final String DATABASE_NAME = "awsquiz_db";
     private static QuizOpenHelper instance;
@@ -28,39 +34,55 @@ public class QuizOpenHelper extends SQLiteOpenHelper {
     private QuizOpenHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         this.dbContext = context;
-            try {
-                this.getReadableDatabase();
-                copyDataBase();
-                this.close();
-                openDataBase();
+        try {
+            this.getReadableDatabase();
+            copyDataBase();
+            this.close();
+            openDataBase();
 
-            } catch (IOException e) {
-                throw new Error("Error copying database");
-            }
-            Toast.makeText(context, "Initial database is created", Toast.LENGTH_LONG).show();
+        } catch (IOException e) {
+            throw new Error("Error copying database");
+        }
+        Toast.makeText(context, "Initial database is created", Toast.LENGTH_LONG).show();
     }
 
     public String getQuestion(int questionId) {
-        Cursor cursor = dataBase.rawQuery("SELECT question FROM " + QUESTION_TABLE_NAME + " WHERE _id = " + questionId, null);
+        Cursor cursor = dataBase.rawQuery("SELECT question FROM " + QUESTIONS_TABLE_NAME + " WHERE _id = " + questionId, null);
         cursor.moveToFirst();
         return cursor.getString(0);
 
     }
 
-    public String getRandomQuestion() {
+    public HashMap<HashMap<Integer,String>, List<String>> getRandomQuestionWithAnswers() {
+        HashMap<HashMap<Integer,String>, List<String>> questionAndAnswersList = new HashMap<>();
         Random r = new Random();
-        Cursor cursor = dataBase.rawQuery("SELECT COUNT(*) FROM " + QUESTION_TABLE_NAME, null);
+        Cursor cursor = dataBase.rawQuery("SELECT COUNT(*) FROM " + QUESTIONS_TABLE_NAME, null);
         cursor.moveToFirst();
-        int count = cursor.getInt(0);
         int id;
+//        int count = cursor.getInt(0);
 //            Toast toast = Toast.makeText(dbContext, String.valueOf(count), Toast.LENGTH_LONG);
 //            toast.show();
         do {
-            id = r.nextInt(cursor.getInt(0)+1);
-        } while(id==0);
-        cursor = dataBase.rawQuery("SELECT question FROM " + QUESTION_TABLE_NAME + " WHERE _id = " + id, null);
+            id = r.nextInt(cursor.getInt(0) + 1);
+        } while (id == 0);
+        cursor = dataBase.rawQuery("SELECT question FROM " + QUESTIONS_TABLE_NAME + " WHERE _id = " + id, null);
         cursor.moveToFirst();
-        return cursor.getString(0);
+        String question = cursor.getString(0);
+        cursor = dataBase.rawQuery("SELECT answer_a, answer_b, answer_c, answer_c, answer_d, answer_e, answer_f FROM " + ANSWERS_TABLE_NAME + " WHERE _id = " + id, null);
+        String[] columnNames = cursor.getColumnNames();
+        List<String> answers = new ArrayList<>();
+        while (cursor.moveToNext()) {
+            for (String column : columnNames) {
+                String answer = cursor.getString(cursor.getColumnIndex(column));
+                if(answer != null) {
+                    answers.add(answer);
+                }
+            }
+        }
+        HashMap<Integer, String> questionMap = new HashMap<>();
+        questionMap.put(id,question);
+        questionAndAnswersList.put(questionMap, answers);
+        return questionAndAnswersList;
     }
 
     private boolean checkDataBase() {
@@ -87,14 +109,14 @@ public class QuizOpenHelper extends SQLiteOpenHelper {
         dataBase = SQLiteDatabase.openDatabase(dbPath, null, SQLiteDatabase.OPEN_READWRITE);
     }
 
-    private void copyDataBase() throws IOException{
+    private void copyDataBase() throws IOException {
         InputStream myInput = dbContext.getAssets().open(DATABASE_NAME);
         String outFileName = DATABASE_PATH + DATABASE_NAME;
         OutputStream myOutput = new FileOutputStream(outFileName);
 
         byte[] buffer = new byte[1024];
         int length;
-        while ((length = myInput.read(buffer))>0){
+        while ((length = myInput.read(buffer)) > 0) {
             myOutput.write(buffer, 0, length);
         }
 
@@ -105,8 +127,8 @@ public class QuizOpenHelper extends SQLiteOpenHelper {
 
 
     public static QuizOpenHelper getInstance(Context context) {
-        if(instance == null) {
-          instance = new QuizOpenHelper(context.getApplicationContext());
+        if (instance == null) {
+            instance = new QuizOpenHelper(context.getApplicationContext());
         }
         return instance;
     }

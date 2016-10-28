@@ -8,13 +8,13 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.InvalidObjectException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class QuizActivity extends AppCompatActivity {
 
-    private final int MAX_ANSWERS = 4;
+    private final int MAX_ANSWERS = 6;
     private Context context;
 
     @Override
@@ -24,9 +24,13 @@ public class QuizActivity extends AppCompatActivity {
         setContentView(R.layout.activity_quiz);
         QuizOpenHelper quizOpenHelper = QuizOpenHelper.getInstance(this);
         TextView textView = (TextView) findViewById(R.id.textView);
-        String question = quizOpenHelper.getRandomQuestion();
-        if (question != null) {
-            textView.setText(question);
+        //TODO: Na tym etapie dostaje o 1 odpowiedz za duzo
+        HashMap<HashMap<Integer,String>, List<String>> questionAndAnswers = quizOpenHelper.getRandomQuestionWithAnswers();
+        if (questionAndAnswers != null) {
+            HashMap<Integer,String> questionMap = questionAndAnswers.keySet().iterator().next();
+            Integer id = questionMap.keySet().iterator().next();
+            textView.setText(questionMap.get(id));
+            loadAnswers(questionAndAnswers.get(questionMap));
         } else {
             textView.setText("NOT AVAILABLE");
         }
@@ -55,6 +59,16 @@ public class QuizActivity extends AppCompatActivity {
                     Toast.makeText(context, "4 checked", Toast.LENGTH_LONG).show();
                 }
                 break;
+            case R.id.answer5:
+                if (checked) {
+                    Toast.makeText(context, "5 checked", Toast.LENGTH_LONG).show();
+                }
+                break;
+            case R.id.answer6:
+                if (checked) {
+                    Toast.makeText(context, "6 checked", Toast.LENGTH_LONG).show();
+                }
+                break;
         }
     }
 
@@ -70,8 +84,25 @@ public class QuizActivity extends AppCompatActivity {
         for(Integer i : checked) {
             finalChecked.append(i + ", ");
         }
-
         Toast.makeText(context, finalChecked.toString(), Toast.LENGTH_LONG).show();
+        reloadAnswers();
+    }
+
+    private void loadAnswers(List<String> answersList) {
+        for (int i = 0; i < answersList.size(); i++) {
+            CheckBox checkBox = ((CheckBox) findViewById(getCheckBoxId(i+1)));
+            checkBox.setText(answersList.get(i));
+            checkBox.setEnabled(true);
+            checkBox.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void reloadAnswers() {
+        for (int i = 1; i <= MAX_ANSWERS; i++) {
+            CheckBox checkBox = ((CheckBox) findViewById(getCheckBoxId(i+1)));
+            checkBox.setEnabled(false);
+            checkBox.setVisibility(View.INVISIBLE);
+        }
     }
 
     private int getCheckBoxId(int i) {
@@ -84,6 +115,10 @@ public class QuizActivity extends AppCompatActivity {
                 return R.id.answer3;
             case 4:
                 return R.id.answer4;
+            case 5:
+                return R.id.answer5;
+            case 6:
+                return R.id.answer6;
         }
         throw new IllegalArgumentException();
     }
