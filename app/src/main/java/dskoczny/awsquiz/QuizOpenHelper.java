@@ -68,7 +68,7 @@ public class QuizOpenHelper extends SQLiteOpenHelper {
         cursor = dataBase.rawQuery("SELECT question FROM " + QUESTIONS_TABLE_NAME + " WHERE _id = " + id, null);
         cursor.moveToFirst();
         String question = cursor.getString(0);
-        cursor = dataBase.rawQuery("SELECT answer_a, answer_b, answer_c, answer_c, answer_d, answer_e, answer_f FROM " + ANSWERS_TABLE_NAME + " WHERE _id = " + id, null);
+        cursor = dataBase.rawQuery("SELECT answer_a, answer_b, answer_c, answer_d, answer_e, answer_f FROM " + ANSWERS_TABLE_NAME + " WHERE _id = " + id, null);
         String[] columnNames = cursor.getColumnNames();
         List<String> answers = new ArrayList<>();
         while (cursor.moveToNext()) {

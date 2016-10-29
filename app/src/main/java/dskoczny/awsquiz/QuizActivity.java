@@ -20,20 +20,10 @@ public class QuizActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        context = this;
         setContentView(R.layout.activity_quiz);
-        QuizOpenHelper quizOpenHelper = QuizOpenHelper.getInstance(this);
-        TextView textView = (TextView) findViewById(R.id.textView);
-        //TODO: Na tym etapie dostaje o 1 odpowiedz za duzo
-        HashMap<HashMap<Integer,String>, List<String>> questionAndAnswers = quizOpenHelper.getRandomQuestionWithAnswers();
-        if (questionAndAnswers != null) {
-            HashMap<Integer,String> questionMap = questionAndAnswers.keySet().iterator().next();
-            Integer id = questionMap.keySet().iterator().next();
-            textView.setText(questionMap.get(id));
-            loadAnswers(questionAndAnswers.get(questionMap));
-        } else {
-            textView.setText("NOT AVAILABLE");
-        }
+        context = this;
+        reloadAnswers();
+        loadQuestionAndAnswers();
     }
 
     public void selectItem(View view) {
@@ -86,12 +76,27 @@ public class QuizActivity extends AppCompatActivity {
         }
         Toast.makeText(context, finalChecked.toString(), Toast.LENGTH_LONG).show();
         reloadAnswers();
+        loadQuestionAndAnswers();
+    }
+
+    private void loadQuestionAndAnswers() {
+        QuizOpenHelper quizOpenHelper = QuizOpenHelper.getInstance(this);
+        TextView textView = (TextView) findViewById(R.id.textView);
+        HashMap<HashMap<Integer,String>, List<String>> questionAndAnswers = quizOpenHelper.getRandomQuestionWithAnswers();
+        if (questionAndAnswers != null) {
+            HashMap<Integer,String> questionMap = questionAndAnswers.keySet().iterator().next();
+            Integer id = questionMap.keySet().iterator().next();
+            textView.setText(questionMap.get(id));
+            loadAnswers(questionAndAnswers.get(questionMap));
+        } else {
+            textView.setText("NOT AVAILABLE");
+        }
     }
 
     private void loadAnswers(List<String> answersList) {
         for (int i = 0; i < answersList.size(); i++) {
             CheckBox checkBox = ((CheckBox) findViewById(getCheckBoxId(i+1)));
-            checkBox.setText(answersList.get(i));
+            checkBox.setText(answersList.get(i));;
             checkBox.setEnabled(true);
             checkBox.setVisibility(View.VISIBLE);
         }
@@ -99,9 +104,10 @@ public class QuizActivity extends AppCompatActivity {
 
     private void reloadAnswers() {
         for (int i = 1; i <= MAX_ANSWERS; i++) {
-            CheckBox checkBox = ((CheckBox) findViewById(getCheckBoxId(i+1)));
+            CheckBox checkBox = ((CheckBox) findViewById(getCheckBoxId(i)));
             checkBox.setEnabled(false);
             checkBox.setVisibility(View.INVISIBLE);
+            checkBox.setChecked(false);
         }
     }
 
