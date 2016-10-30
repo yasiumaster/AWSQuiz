@@ -14,9 +14,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 public class QuizOpenHelper extends SQLiteOpenHelper {
@@ -46,6 +46,38 @@ public class QuizOpenHelper extends SQLiteOpenHelper {
         Toast.makeText(context, "Initial database is created", Toast.LENGTH_LONG).show();
     }
 
+    public List<Integer> getCorrectAnswers(int questionId) {
+        Cursor cursor = dataBase.rawQuery("SELECT correct_answer_bit FROM " + CORRECT_ANSWERS_TABLE_NAME + " WHERE _id = " + questionId, null);
+        cursor.moveToFirst();
+
+        int answersBit = cursor.getInt(0);
+
+        return getNumbersFromBit(answersBit);
+    }
+
+    public static List<Integer> getNumbersFromBit(int bit) {
+        List<Integer> numbers = new ArrayList<>();
+        final List<Integer> powCollection = new ArrayList<>(Arrays.asList(1,2,4,8,16,32));
+
+        int previous = 1;
+
+        while (bit > 0) {
+            for (Integer current : powCollection) {
+                if (current > bit) {
+                    numbers.add(previous);
+                    bit = bit - previous;
+                    break;
+                } else if (current == powCollection.get(powCollection.size() - 1)) {
+                    numbers.add(current);
+                    bit = bit - current;
+                    break;
+                }
+                previous = current;
+            }
+        }
+        return numbers;
+    }
+
     public String getQuestion(int questionId) {
         Cursor cursor = dataBase.rawQuery("SELECT question FROM " + QUESTIONS_TABLE_NAME + " WHERE _id = " + questionId, null);
         cursor.moveToFirst();
@@ -53,8 +85,8 @@ public class QuizOpenHelper extends SQLiteOpenHelper {
 
     }
 
-    public HashMap<HashMap<Integer,String>, List<String>> getRandomQuestionWithAnswers() {
-        HashMap<HashMap<Integer,String>, List<String>> questionAndAnswersList = new HashMap<>();
+    public HashMap<HashMap<Integer, String>, List<String>> getRandomQuestionWithAnswers() {
+        HashMap<HashMap<Integer, String>, List<String>> questionAndAnswersList = new HashMap<>();
         Random r = new Random();
         Cursor cursor = dataBase.rawQuery("SELECT COUNT(*) FROM " + QUESTIONS_TABLE_NAME, null);
         cursor.moveToFirst();
@@ -74,13 +106,13 @@ public class QuizOpenHelper extends SQLiteOpenHelper {
         while (cursor.moveToNext()) {
             for (String column : columnNames) {
                 String answer = cursor.getString(cursor.getColumnIndex(column));
-                if(answer != null) {
+                if (answer != null) {
                     answers.add(answer);
                 }
             }
         }
         HashMap<Integer, String> questionMap = new HashMap<>();
-        questionMap.put(id,question);
+        questionMap.put(id, question);
         questionAndAnswersList.put(questionMap, answers);
         return questionAndAnswersList;
     }

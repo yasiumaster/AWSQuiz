@@ -14,8 +14,9 @@ import java.util.List;
 
 public class QuizActivity extends AppCompatActivity {
 
-    private final int MAX_ANSWERS = 6;
+    public final static int MAX_ANSWERS = 6;
     private Context context;
+    private int currentQuestionId = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,7 +24,7 @@ public class QuizActivity extends AppCompatActivity {
         setContentView(R.layout.activity_quiz);
         context = this;
         reloadAnswers();
-        loadQuestionAndAnswers();
+        currentQuestionId = loadQuestionAndAnswers();
     }
 
     public void selectItem(View view) {
@@ -70,16 +71,25 @@ public class QuizActivity extends AppCompatActivity {
                 checked.add(i);
             }
         }
-        StringBuilder finalChecked = new StringBuilder();
-        for(Integer i : checked) {
-            finalChecked.append(i + ", ");
-        }
-        Toast.makeText(context, finalChecked.toString(), Toast.LENGTH_LONG).show();
+//        StringBuilder finalChecked = new StringBuilder();
+//        for(Integer i : checked) {
+//            finalChecked.append(i + ", ");
+//        }
+//        Toast.makeText(context, finalChecked.toString(), Toast.LENGTH_LONG).show();
         reloadAnswers();
-        loadQuestionAndAnswers();
+        currentQuestionId = loadQuestionAndAnswers();
+        checkAnswers(checked);
     }
 
-    private void loadQuestionAndAnswers() {
+    private void checkAnswers(List<Integer> checked) {
+        //TODO
+        //getCorrect answers
+        //comprare with checked
+        //add points
+
+    }
+
+    private int loadQuestionAndAnswers() {
         QuizOpenHelper quizOpenHelper = QuizOpenHelper.getInstance(this);
         TextView textView = (TextView) findViewById(R.id.textView);
         HashMap<HashMap<Integer,String>, List<String>> questionAndAnswers = quizOpenHelper.getRandomQuestionWithAnswers();
@@ -88,8 +98,10 @@ public class QuizActivity extends AppCompatActivity {
             Integer id = questionMap.keySet().iterator().next();
             textView.setText(questionMap.get(id));
             loadAnswers(questionAndAnswers.get(questionMap));
+            return id;
         } else {
             textView.setText("NOT AVAILABLE");
+            return 0;
         }
     }
 
