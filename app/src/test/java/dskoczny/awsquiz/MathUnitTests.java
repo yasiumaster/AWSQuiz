@@ -9,6 +9,14 @@ import static org.junit.Assert.*;
 public class MathUnitTests {
 
     @Test
+    public void gettingNumberForm_1_isQuestion() throws Exception {
+        int bit = 1;
+        List<Integer> numbers = QuizOpenHelper.getNumbersFromBit(bit);
+        assertEquals(1, numbers.size());
+        assertTrue(numbers.contains(1));
+    }
+
+    @Test
     public void gettingNumberForm_8_isQuestion() throws Exception {
         int bit = 8;
         List<Integer> numbers = QuizOpenHelper.getNumbersFromBit(bit);

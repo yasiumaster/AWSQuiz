@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
@@ -57,17 +56,14 @@ public class QuizOpenHelper extends SQLiteOpenHelper {
 
     public static List<Integer> getNumbersFromBit(int bit) {
         List<Integer> numbers = new ArrayList<>();
-        final List<Integer> powCollection = new ArrayList<>(Arrays.asList(1,2,4,8,16,32));
-
         int previous = 1;
-
         while (bit > 0) {
-            for (Integer current : powCollection) {
+            for (Integer current : QuizActivity.powCollection) {
                 if (current > bit) {
                     numbers.add(previous);
                     bit = bit - previous;
                     break;
-                } else if (current == powCollection.get(powCollection.size() - 1)) {
+                } else if (current == QuizActivity.powCollection.get(QuizActivity.powCollection.size() - 1)) {
                     numbers.add(current);
                     bit = bit - current;
                     break;
@@ -82,7 +78,6 @@ public class QuizOpenHelper extends SQLiteOpenHelper {
         Cursor cursor = dataBase.rawQuery("SELECT question FROM " + QUESTIONS_TABLE_NAME + " WHERE _id = " + questionId, null);
         cursor.moveToFirst();
         return cursor.getString(0);
-
     }
 
     public HashMap<HashMap<Integer, String>, List<String>> getRandomQuestionWithAnswers() {
@@ -91,9 +86,6 @@ public class QuizOpenHelper extends SQLiteOpenHelper {
         Cursor cursor = dataBase.rawQuery("SELECT COUNT(*) FROM " + QUESTIONS_TABLE_NAME, null);
         cursor.moveToFirst();
         int id;
-//        int count = cursor.getInt(0);
-//            Toast toast = Toast.makeText(dbContext, String.valueOf(count), Toast.LENGTH_LONG);
-//            toast.show();
         do {
             id = r.nextInt(cursor.getInt(0) + 1);
         } while (id == 0);

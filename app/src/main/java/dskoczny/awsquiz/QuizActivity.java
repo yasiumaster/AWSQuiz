@@ -8,13 +8,16 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
 public class QuizActivity extends AppCompatActivity {
 
     public final static int MAX_ANSWERS = 6;
+    public final static List<Integer> powCollection = new ArrayList<>(Arrays.asList(1,2,4,8,16,32));
     private Context context;
     private int currentQuestionId = 0;
 
@@ -32,32 +35,32 @@ public class QuizActivity extends AppCompatActivity {
         switch (view.getId()) {
             case R.id.answer1:
                 if (checked) {
-                    Toast.makeText(context, "1 checked", Toast.LENGTH_LONG).show();
+//                    Toast.makeText(context, "1 checked", Toast.LENGTH_LONG).show();
                 }
                 break;
             case R.id.answer2:
                 if (checked) {
-                    Toast.makeText(context, "2 checked", Toast.LENGTH_LONG).show();
+//                    Toast.makeText(context, "2 checked", Toast.LENGTH_LONG).show();
                 }
                 break;
             case R.id.answer3:
                 if (checked) {
-                    Toast.makeText(context, "3 checked", Toast.LENGTH_LONG).show();
+//                    Toast.makeText(context, "3 checked", Toast.LENGTH_LONG).show();
                 }
                 break;
             case R.id.answer4:
                 if (checked) {
-                    Toast.makeText(context, "4 checked", Toast.LENGTH_LONG).show();
+//                    Toast.makeText(context, "4 checked", Toast.LENGTH_LONG).show();
                 }
                 break;
             case R.id.answer5:
                 if (checked) {
-                    Toast.makeText(context, "5 checked", Toast.LENGTH_LONG).show();
+//                    Toast.makeText(context, "5 checked", Toast.LENGTH_LONG).show();
                 }
                 break;
             case R.id.answer6:
                 if (checked) {
-                    Toast.makeText(context, "6 checked", Toast.LENGTH_LONG).show();
+//                    Toast.makeText(context, "6 checked", Toast.LENGTH_LONG).show();
                 }
                 break;
         }
@@ -67,34 +70,28 @@ public class QuizActivity extends AppCompatActivity {
         List<Integer> checked = new ArrayList<>();
         for (int i = 1; i <= MAX_ANSWERS; i++) {
             boolean isChecked = ((CheckBox) findViewById(getCheckBoxId(i))).isChecked();
-            if(isChecked) {
-                checked.add(i);
+            if (isChecked) {
+                checked.add(powCollection.get(i-1));
             }
         }
-//        StringBuilder finalChecked = new StringBuilder();
-//        for(Integer i : checked) {
-//            finalChecked.append(i + ", ");
-//        }
-//        Toast.makeText(context, finalChecked.toString(), Toast.LENGTH_LONG).show();
         reloadAnswers();
-        currentQuestionId = loadQuestionAndAnswers();
         checkAnswers(checked);
+        currentQuestionId = loadQuestionAndAnswers();
     }
 
     private void checkAnswers(List<Integer> checked) {
-        //TODO
-        //getCorrect answers
-        //comprare with checked
-        //add points
-
+        QuizOpenHelper quizOpenHelper = QuizOpenHelper.getInstance(this);
+        List<Integer> correctAnswers = quizOpenHelper.getCorrectAnswers(currentQuestionId);
+        boolean isCorrectAnswered = sum(correctAnswers) == sum(checked);
+        Toast.makeText(context, String.valueOf(isCorrectAnswered), Toast.LENGTH_LONG).show();
     }
 
     private int loadQuestionAndAnswers() {
         QuizOpenHelper quizOpenHelper = QuizOpenHelper.getInstance(this);
         TextView textView = (TextView) findViewById(R.id.textView);
-        HashMap<HashMap<Integer,String>, List<String>> questionAndAnswers = quizOpenHelper.getRandomQuestionWithAnswers();
+        HashMap<HashMap<Integer, String>, List<String>> questionAndAnswers = quizOpenHelper.getRandomQuestionWithAnswers();
         if (questionAndAnswers != null) {
-            HashMap<Integer,String> questionMap = questionAndAnswers.keySet().iterator().next();
+            HashMap<Integer, String> questionMap = questionAndAnswers.keySet().iterator().next();
             Integer id = questionMap.keySet().iterator().next();
             textView.setText(questionMap.get(id));
             loadAnswers(questionAndAnswers.get(questionMap));
@@ -107,8 +104,8 @@ public class QuizActivity extends AppCompatActivity {
 
     private void loadAnswers(List<String> answersList) {
         for (int i = 0; i < answersList.size(); i++) {
-            CheckBox checkBox = ((CheckBox) findViewById(getCheckBoxId(i+1)));
-            checkBox.setText(answersList.get(i));;
+            CheckBox checkBox = ((CheckBox) findViewById(getCheckBoxId(i + 1)));
+            checkBox.setText(answersList.get(i));
             checkBox.setEnabled(true);
             checkBox.setVisibility(View.VISIBLE);
         }
@@ -139,5 +136,13 @@ public class QuizActivity extends AppCompatActivity {
                 return R.id.answer6;
         }
         throw new IllegalArgumentException();
+    }
+
+    private int sum (List<Integer> list) {
+        int sum = 0;
+        for (int i: list) {
+            sum += i;
+        }
+        return sum;
     }
 }
