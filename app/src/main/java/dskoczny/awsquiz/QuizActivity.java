@@ -29,9 +29,11 @@ public class QuizActivity extends AppCompatActivity {
     private Context context;
     private int currentQuestionId = 0;
     private TextView timerView;
+    private TextView questionCountText;
     private CountDownTimer countDownTimer;
     private Set<Integer> questionIdsSet = new HashSet<>();
     private HashMap<HashMap<Integer, String>, List<String>> questionAndAnswers;
+    private static Double mark = 0D;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,14 +41,18 @@ public class QuizActivity extends AppCompatActivity {
         setContentView(R.layout.activity_quiz);
         context = this;
         timerView = (TextView) findViewById(R.id.timer);
+        questionCountText = (TextView) findViewById(R.id.questionCountText);
+        questionCountText.setVisibility(View.INVISIBLE);
         reloadAnswers();
-        if(MainActivity.getGameMode() == MainActivity.GameMode.QUIZ) {
+        if (MainActivity.getGameMode() == MainActivity.GameMode.QUIZ) {
             prepareQuiz(); //get 20 question, set timer and count-down counter
+            updateQuestionCounter();
         }
         currentQuestionId = loadQuestionAndAnswers();
     }
 
     private void prepareQuiz() {
+        questionCountText.setVisibility(View.VISIBLE);
         Random r = new Random();
         int currentQuestionsCount = QuizOpenHelper.getInstance(context).getQuestionsCount();
         while (questionIdsSet.size() < QUIZ_QUESTION_COUNT) {
@@ -107,18 +113,31 @@ public class QuizActivity extends AppCompatActivity {
         reloadAnswers();
         checkAnswers(checked);
 
-        if(MainActivity.getGameMode() == MainActivity.GameMode.QUIZ && questionAndAnswers.isEmpty()) {
-            Intent intent = new Intent(this, FinalActivity.class);
-            startActivity(intent);
+        if (MainActivity.getGameMode() == MainActivity.GameMode.QUIZ) {
+            if (questionAndAnswers.isEmpty()) {
+                Intent intent = new Intent(this, FinalActivity.class);
+                startActivity(intent);
+                return;
+            } else {
+                updateQuestionCounter();
+            }
         }
         currentQuestionId = loadQuestionAndAnswers();
+    }
+
+    private void updateQuestionCounter() {
+        int questionsLeft = QUIZ_QUESTION_COUNT - questionAndAnswers.size() + 1;
+        questionCountText.setText("QUESTION: " + questionsLeft + " of " + QUIZ_QUESTION_COUNT);
     }
 
     private void checkAnswers(List<Integer> checked) {
         QuizOpenHelper quizOpenHelper = QuizOpenHelper.getInstance(this);
         List<Integer> correctAnswers = quizOpenHelper.getCorrectAnswers(currentQuestionId);
         boolean isCorrectAnswered = sum(correctAnswers) == sum(checked);
-        Toast.makeText(context, String.valueOf(isCorrectAnswered), Toast.LENGTH_LONG).show();
+        if(MainActivity.getGameMode() == MainActivity.GameMode.QUIZ) {
+            if(isCorrectAnswered) mark++;
+        }
+        //Toast.makeText(context, String.valueOf(isCorrectAnswered), Toast.LENGTH_LONG).show();
     }
 
     private int loadQuestionAndAnswers() {
@@ -193,5 +212,13 @@ public class QuizActivity extends AppCompatActivity {
             }
         };
         countDownTimer.start();
+    }
+
+    public static Double getMark() {
+        return mark;
+    }
+
+    public static int getQuizQuestionCount() {
+        return QUIZ_QUESTION_COUNT;
     }
 }
