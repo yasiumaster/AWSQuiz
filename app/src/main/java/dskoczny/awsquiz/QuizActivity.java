@@ -2,15 +2,15 @@ package dskoczny.awsquiz;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -18,13 +18,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicLong;
 
 public class QuizActivity extends AppCompatActivity {
 
     public final static int MAX_ANSWERS = 6;
     public final static List<Integer> powCollection = new ArrayList<>(Arrays.asList(1, 2, 4, 8, 16, 32));
-    private final static int QUIZ_QUESTION_COUNT = 2;//20
+    private final static int QUIZ_QUESTION_COUNT = 10;//20
     private final static int TIME_FOR_QUIZ_IN_SEC = 30 * 60;
     private Context context;
     private int currentQuestionId = 0;
@@ -40,7 +39,9 @@ public class QuizActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_quiz);
         context = this;
+        mark = 0D;
         timerView = (TextView) findViewById(R.id.timer);
+        timerView.setVisibility(View.INVISIBLE);
         questionCountText = (TextView) findViewById(R.id.questionCountText);
         questionCountText.setVisibility(View.INVISIBLE);
         reloadAnswers();
@@ -53,6 +54,7 @@ public class QuizActivity extends AppCompatActivity {
 
     private void prepareQuiz() {
         questionCountText.setVisibility(View.VISIBLE);
+        //timerView.setVisibility(View.VISIBLE);
         Random r = new Random();
         int currentQuestionsCount = QuizOpenHelper.getInstance(context).getQuestionsCount();
         while (questionIdsSet.size() < QUIZ_QUESTION_COUNT) {
@@ -117,6 +119,7 @@ public class QuizActivity extends AppCompatActivity {
             if (questionAndAnswers.isEmpty()) {
                 Intent intent = new Intent(this, FinalActivity.class);
                 startActivity(intent);
+                finish();
                 return;
             } else {
                 updateQuestionCounter();
@@ -136,8 +139,11 @@ public class QuizActivity extends AppCompatActivity {
         boolean isCorrectAnswered = sum(correctAnswers) == sum(checked);
         if(MainActivity.getGameMode() == MainActivity.GameMode.QUIZ) {
             if(isCorrectAnswered) mark++;
+        } else {
+            Toast t = Toast.makeText(context, String.valueOf(isCorrectAnswered ? "GOOD!" : "WRONG"), Toast.LENGTH_SHORT);
+            t.getView().setBackgroundColor(isCorrectAnswered ? Color.GREEN : Color.RED);
+            t.show();
         }
-        //Toast.makeText(context, String.valueOf(isCorrectAnswered), Toast.LENGTH_LONG).show();
     }
 
     private int loadQuestionAndAnswers() {

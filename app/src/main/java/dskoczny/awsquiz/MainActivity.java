@@ -20,6 +20,7 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, QuizActivity.class);
         gameMode = GameMode.QUIZ;
         startActivity(intent);
+        finish();
     }
 
     public void practiceButtonAction(View view) {
