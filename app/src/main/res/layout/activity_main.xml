@@ -12,9 +12,19 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="SWITCH"
-        android:id="@+id/b1"
+        android:text="QUIZ"
+        android:id="@+id/quizButton"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
-        android:onClick="switchButtonAction" />
+        android:onClick="quizButtonAction" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="PRACTICE"
+        android:id="@+id/practiceButton"
+        android:layout_below="@+id/quizButton"
+        android:layout_centerHorizontal="true"
+        android:onClick="practiceButtonAction"
+        android:layout_marginTop="30dp" />
 </RelativeLayout>

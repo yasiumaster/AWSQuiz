@@ -7,6 +7,8 @@ import android.view.View;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static GameMode gameMode;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -14,13 +16,30 @@ public class MainActivity extends AppCompatActivity {
         initDatabase();
     }
 
-    public void switchButtonAction(View view) {
+    public void quizButtonAction(View view) {
         Intent intent = new Intent(this, QuizActivity.class);
+        gameMode = GameMode.QUIZ;
+        startActivity(intent);
+    }
+
+    public void practiceButtonAction(View view) {
+        Intent intent = new Intent(this, QuizActivity.class);
+        gameMode = GameMode.PRACTICE;
         startActivity(intent);
     }
 
     private void initDatabase() {
         QuizOpenHelper quizOpenHelper = QuizOpenHelper.getInstance(this);
         quizOpenHelper.openDataBase();
+    }
+
+    public static GameMode getGameMode() {
+        assert gameMode != null;
+        return gameMode;
+    }
+
+    public enum GameMode {
+        QUIZ,
+        PRACTICE
     }
 }

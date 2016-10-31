@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 public class QuizOpenHelper extends SQLiteOpenHelper {
 
@@ -54,6 +55,12 @@ public class QuizOpenHelper extends SQLiteOpenHelper {
         return getNumbersFromBit(answersBit);
     }
 
+    public int getQuestionsCount() {
+        Cursor cursor = dataBase.rawQuery("SELECT count(*) FROM " + QUESTIONS_TABLE_NAME, null);
+        cursor.moveToFirst();
+        return cursor.getInt(0);
+    }
+
     public static List<Integer> getNumbersFromBit(int bit) {
         List<Integer> numbers = new ArrayList<>();
         int previous = 1;
@@ -78,6 +85,31 @@ public class QuizOpenHelper extends SQLiteOpenHelper {
         Cursor cursor = dataBase.rawQuery("SELECT question FROM " + QUESTIONS_TABLE_NAME + " WHERE _id = " + questionId, null);
         cursor.moveToFirst();
         return cursor.getString(0);
+    }
+
+    public HashMap<HashMap<Integer, String>, List<String>> getFixedQuestionsWithAnswers(Set<Integer> questionsIds) {
+        HashMap<HashMap<Integer, String>, List<String>> questionAndAnswersList = new HashMap<>();
+        Cursor cursor;
+        for(Integer id : questionsIds) {
+            cursor = dataBase.rawQuery("SELECT question FROM " + QUESTIONS_TABLE_NAME + " WHERE _id = " + id, null);
+            cursor.moveToFirst();
+            String question = cursor.getString(0);
+            cursor = dataBase.rawQuery("SELECT answer_a, answer_b, answer_c, answer_d, answer_e, answer_f FROM " + ANSWERS_TABLE_NAME + " WHERE _id = " + id, null);
+            String[] columnNames = cursor.getColumnNames();
+            List<String> answers = new ArrayList<>();
+            while (cursor.moveToNext()) {
+                for (String column : columnNames) {
+                    String answer = cursor.getString(cursor.getColumnIndex(column));
+                    if (answer != null) {
+                        answers.add(answer);
+                    }
+                }
+            }
+            HashMap<Integer, String> questionMap = new HashMap<>();
+            questionMap.put(id, question);
+            questionAndAnswersList.put(questionMap, answers);
+        }
+        return questionAndAnswersList;
     }
 
     public HashMap<HashMap<Integer, String>, List<String>> getRandomQuestionWithAnswers() {
